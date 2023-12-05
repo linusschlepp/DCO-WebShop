@@ -7,16 +7,16 @@ import de.othr.dco.webshop.entities.User
 object WebShopUtils {
 
 
-  def getUserInMap(map: Map[User, ActorRef[BasketMessage]], user: User): User = map.keySet.filter(u=>u.id==user.id).head
+ // def getUserInMap(map: Map[String, ActorRef[BasketMessage]], uId: String): User = map.keySet.filter(u=>u.id==uId).head
 
-  def getActorRefForUser(map: Map[User, ActorRef[BasketMessage]], user: User): ActorRef[BasketMessage] = map(getUserInMap(map, user))
+  def getActorRefForUser(map: Map[String, ActorRef[BasketMessage]], uId: String): ActorRef[BasketMessage] = map(uId)
 
-  def isUserInMap(map: Map[User, ActorRef[BasketMessage]], user: User): Boolean = map.keySet.map(u=>u.id).contains(user.id)
+  def isUserInMap(map: Map[String, ActorRef[BasketMessage]], uId: String): Boolean = map.contains(uId)
 
 
-  def buildNewMap(map: Map[User, ActorRef[BasketMessage]], user: User,  newBasketActor: ActorRef[BasketMessage]): Map[User, ActorRef[BasketMessage]] =
-      Map.newBuilder.addAll(map).addOne(user, newBasketActor).result()
+  def buildNewMap(map: Map[String, ActorRef[BasketMessage]], uId: String,  newBasketActor: ActorRef[BasketMessage]): Map[String, ActorRef[BasketMessage]] =
+      Map.newBuilder.addAll(map).addOne(uId, newBasketActor).result()
 
-  def isBasketForUser(map: Map[User, ActorRef[BasketMessage]], user: User): Boolean = map.contains(user)
+  def isBasketForUser(map: Map[String, ActorRef[BasketMessage]], uId: String): Boolean = map.contains(uId)
 
 }
