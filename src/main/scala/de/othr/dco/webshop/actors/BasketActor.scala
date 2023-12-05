@@ -11,7 +11,7 @@ object BasketActor {
 
   sealed trait BasketMessage
 
-  case class AddItemToUserBasket(user: User, item: Item) extends BasketMessage
+  case class AddItemToUserBasket(user: User, item: Item, replyTo: ActorRef[Response]) extends BasketMessage
 
   case class InitOrder(user: User) extends BasketMessage
 
@@ -19,44 +19,41 @@ object BasketActor {
 
   case class ConductPayment(user: User, payment: Payment, paymentRef: ActorRef[PaymentMessage]) extends BasketMessage
 
-  def apply(): Behavior[BasketMessage] = internalBehavior(Map())
+  case class Response(user: User)
 
-  def internalBehavior(map: Map[String, User]): Behavior[BasketMessage] =  {
-    Behaviors.receiveMessagePartial {
+  def apply(): Behavior[BasketMessage] = internalBehavior()
+
+  def internalBehavior(): Behaviors.Receive[BasketMessage] = {
+    Behaviors.receiveMessage {
       case GetAllItemsForUser(user) =>
-      val orderOption: Option[User] = map.get(user.id)
-      if(orderOption.isEmpty) {
-        throw new UserNotFoundException("User: %s is not yet registered", user)
-      }
+//        val orderOption: Option[User] = map.get(user.id)
+//        if (orderOption.isEmpty) {
+//          throw new UserNotFoundException("User: %s is not yet registered", user)
+//        }
         // print out all items of specific user
-        orderOption.get.currentOrder.listOfItems.foreach(println)
+      //  orderOption.get.currentOrder.listOfItems.foreach(println)
         Behaviors.same
-      case AddItemToUserBasket(user, item) =>
-        val orderOption: Option[User] = map.get(user.id)
-        if (orderOption.isEmpty) {
-          throw new UserNotFoundException("User: %s is not yet registered", user)
-        }
-        val newOrder = if(orderOption.get.currentOrder.listOfItems.isEmpty) new Order(List(item)) else new Order(orderOption.get.currentOrder.listOfItems :+ item)
+      case AddItemToUserBasket(user, item, basketRef) =>
+        val newOrder = if (user.currentOrder.listOfItems.isEmpty) new Order(List(item)) else new Order(user.currentOrder.listOfItems :+ item)
         val newUser = new User(user.id, user.name, user.address, newOrder)
-        val newMap = Map.newBuilder.addAll(map).addOne(user.id, newUser).result()
         println(s"Successfully added $item to the basket of user $user, the order now contains: ${newOrder.listOfItems}")
-        internalBehavior(newMap)
+        basketRef ! Response(newUser)
+        Behaviors.same
       case InitOrder(user) =>
-          if(map.contains(user.id)) {
-            println(s"User: $user was already initialized")
-            Behaviors.same
-          }
-        val newMap = Map.newBuilder.addAll(map).addOne(user.id, user).result()
-        internalBehavior(newMap)
+//        if (map.contains(user.id)) {
+//          println(s"User: $user was already initialized")
+//          Behaviors.same
+//        }
+//        val newMap = Map.newBuilder.addAll(map).addOne(user.id, user).result()
+        Behaviors.same
       case ConductPayment(user, payment, newPaymentActor) =>
-          val userOption: Option[User] = map.get(user.id)
-          if (userOption.isEmpty) {
-            throw new UserNotFoundException("User: %s is not yet registered", user)
-          }
-        val tempUser = userOption.get
-        newPaymentActor ! CollectPayment(payment.amount, tempUser.currentOrder.getSum)
+      //  val userOption: Option[User] = map.get(user.id)
+//        if (userOption.isEmpty) {
+//          throw new UserNotFoundException("User: %s is not yet registered", user)
+//        }
+//        val tempUser = userOption.get
+//        newPaymentActor ! CollectPayment(payment.amount, tempUser.currentOrder.getSum)
         Behaviors.stopped
     }
   }
-
 }

@@ -12,18 +12,24 @@ object Webshop extends App {
   val system = ActorSystem.create(WebShopActor(), "webshop-actor")
 
 
-  val user: User = new User(UUID.randomUUID().toString, "LINUS", new Address("Hauptstraße 1", "Regensburg", 12345))
+  val user: User = new User(UUID.randomUUID().toString, "Linus", new Address("Hauptstraße 1", "Regensburg", 12345))
   val user1: User = new User(UUID.randomUUID().toString, "Sebi", new Address("Hauptstraße 15", "Regensburg", 12345))
   val item: Item = new Item("Fancy shoes", 69.0)
   val item1: Item = new Item("Cool sweater", 42.0)
-  system ! CreateBasket()
-  system ! MakeOrder(user)
-  system ! MakeOrder(user1)
+  val item2: Item = new Item("Nice bike", 125.0)
+  system ! CreateBasket(user)
+  system ! CreateBasket(user1)
+  //system ! MakeOrder(user)
+  //system ! MakeOrder(user1)
   system ! AddItemToBasket(item, user)
+  Thread.sleep(1000)
   system ! AddItemToBasket(item1, user)
+  Thread.sleep(1000)
   system ! AddItemToBasket(item, user1)
-  system ! PaymentCollected(new Payment(120.0), user1)
-  system ! PaymentCollected(new Payment(120.0), user)
+  Thread.sleep(1000)
+  system ! AddItemToBasket(item2, user)
+//  system ! PaymentCollected(new Payment(120.0), user1)
+//  system ! PaymentCollected(new Payment(120.0), user)
 
 
 
