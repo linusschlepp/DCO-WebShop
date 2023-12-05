@@ -18,16 +18,13 @@ object Webshop extends App {
   val item1: Item = new Item("Cool sweater", 42.0)
   val item2: Item = new Item("Nice bike", 125.0)
   system ! CreateBasket(user)
-  system ! CreateBasket(user1)
-  //system ! MakeOrder(user)
-  //system ! MakeOrder(user1)
+  //system ! CreateBasket(user1)
   system ! AddItemToBasket(item, user)
-  Thread.sleep(1000)
   system ! AddItemToBasket(item1, user)
-  Thread.sleep(1000)
   system ! AddItemToBasket(item, user1)
-  Thread.sleep(1000)
   system ! AddItemToBasket(item2, user)
+
+  //TODO: Implement payment option next
 //  system ! PaymentCollected(new Payment(120.0), user1)
 //  system ! PaymentCollected(new Payment(120.0), user)
 
